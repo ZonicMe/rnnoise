@@ -96,7 +96,11 @@ void celt_fir(
          int ord)
 {
    int i,j;
-   opus_val16 rnum[ord];
+   #ifdef USE_MALLOC
+      opus_val16* rnum = malloc(sizeof(*rnum) * ord);
+   #else
+      opus_val16 rnum[ord];
+   #endif
    for(i=0;i<ord;i++)
       rnum[i] = num[ord-i-1];
    for (i=0;i<N-3;i+=4)
@@ -119,6 +123,10 @@ void celt_fir(
          sum = MAC16_16(sum,rnum[j],x[i+j-ord]);
       y[i] = ROUND16(sum, SIG_SHIFT);
    }
+
+   #ifdef USE_MALLOC
+      free(rnum);
+   #endif
 }
 
 void celt_iir(const opus_val32 *_x,
@@ -147,8 +155,13 @@ void celt_iir(const opus_val32 *_x,
 #else
    int i,j;
    celt_assert((ord&3)==0);
-   opus_val16 rden[ord];
-   opus_val16 y[N+ord];
+   #ifdef USE_MALLOC
+      opus_val16* rden = malloc(sizeof(*rden) * ord);
+      opus_val16* y = malloc(sizeof(*y) * (N+ord));
+   #else
+      opus_val16 rden[ord];
+      opus_val16 y[N+ord];
+   #endif
    for(i=0;i<ord;i++)
       rden[i] = den[ord-i-1];
    for(i=0;i<ord;i++)
@@ -192,7 +205,12 @@ void celt_iir(const opus_val32 *_x,
    }
    for(i=0;i<ord;i++)
       mem[i] = _y[N-i-1];
-#endif
+   
+   #ifdef USE_MALLOC
+      free(rden);
+      free(y);
+   #endif
+#endif // SMALL_FOOTPRINT
 }
 
 int _celt_autocorr(
@@ -208,7 +226,11 @@ int _celt_autocorr(
    int fastN=n-lag;
    int shift;
    const opus_val16 *xptr;
-   opus_val16 xx[n];
+   #ifdef USE_MALLOC
+      opus_val16* xx = malloc(sizeof(*xx) * n);
+   #else
+      opus_val16 xx[n];
+   #endif
    celt_assert(n>0);
    celt_assert(overlap>=0);
    if (overlap == 0)
@@ -274,6 +296,10 @@ int _celt_autocorr(
       shift += shift2;
    }
 #endif
+
+   #ifdef USE_MALLOC
+      free(xx);
+   #endif
 
    return shift;
 }
