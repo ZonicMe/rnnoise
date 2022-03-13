@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "rnn_data.h": "c",
+        "celt_lpc.h": "c"
+    }
+}
