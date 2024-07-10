@@ -34,7 +34,7 @@
 #include "common.h"
 #include "arch.h"
 #include "rnn.h"
-#include "rnnoise_data.h"
+#include "rnnoise_data_little.h"
 #include <stdio.h>
 
 
